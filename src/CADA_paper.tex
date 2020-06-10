@@ -1,0 +1,178 @@
+\documentclass[9pt,academicons]{article}
+
+\usepackage{CADA}
+
+
+
+%%%%%%%%%%%%%%%% original head %%%%%%%%%%%%%%%%%%
+
+% \documentclass[11pt, oneside]{amsart}   	% use "amsart" instead of "article" for AMSLaTeX format
+% \usepackage{geometry}                		% See geometry.pdf to learn the layout options. There are lots.
+% \geometry{letterpaper}                   		% ... or a4paper or a5paper or ...
+%\geometry{landscape}                		% Activate for rotated page geometry
+%\usepackage[parfill]{parskip}    		% Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{graphicx}				% Use pdf, png, jpg, or eps§ with pdflatex; use eps in DVI mode
+								% TeX will automatically convert eps --> pdf in pdflatex
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{hyperref}
+
+%SetFonts
+% \usepackage[utf8x]{inputenc}
+% \usepackage[T1]{fontenc}
+% \usepackage{lmodern}
+
+
+\nonstopmode
+\input{macros}
+
+% rules for for inputed tables
+% the
+\usepackage{siunitx}
+\usepackage{booktabs} % tables
+\usepackage{fancyvrb} % Verbatim with font size control
+
+%alternative rules for tables
+%\newcommand{\toprule}{\hline}
+%\newcommand{\midrule}{\hline}
+%\newcommand{\bottomrule}{\hline}
+%\newcommand{\specialrule}{}
+
+%%%%%%% M. Jirik added - code highlithing
+% \usepackage{minted}
+% \usepackage[cache=false]{minted}
+\usepackage{listings}
+\usepackage[dvipsnames]{xcolor}
+% \usepackage{minted}
+%SetFonts
+\lstdefinelanguage{Julia}%
+  {morekeywords={abstract,break,case,catch,const,continue,do,else,elseif,%
+      end,export,false,for,function,immutable,import,importall,if,in,%
+      macro,module,otherwise,quote,return,switch,true,try,type,typealias,%
+      using,while},%
+   sensitive=true,%
+%   alsoother={$},%
+   morecomment=[l]\#,%
+   morecomment=[n]{\#=}{=\#},%
+   morestring=[s]{"}{"},%
+   morestring=[m]{'}{'},%
+}[keywords,comments,strings]%
+
+\lstset{%
+    language         = Julia,
+    basicstyle       = \ttfamily,
+    keywordstyle     = \bfseries\color{blue},
+    stringstyle      = \color{magenta},
+    commentstyle     = \color{ForestGreen},
+    % commentstyle     = \color{green},
+    showstringspaces = false,
+}
+%%%%%%
+% TODO remove
+\usepackage{todonotes}
+
+\title{Algebraic Filtering of Surfaces from 3D Medical Images with Julia}
+% \author{Miroslav Jirik and Alberto Paoluzzi}
+\date{}							% Activate to display a given date or no date
+
+% \usepackage{draftwatermark}
+% \SetWatermarkText{Draft}
+% \SetWatermarkScale{2.0}
+% \SetWatermarkColor[rgb]{0.9,0.9,0.9}
+
+\begin{document}
+\maketitle
+
+% ############################################
+% Here is the fun part. Please enter your:            
+%      Name (First, Middle initial, Last)                  
+%      Your ORCID number replace the "000-0000-1234-5678" part.    
+% ############################################
+
+\authorSection{
+	\anAuthor{Miroslav Jirik}{0000-0002-8002-2079}{1,3},
+	\anAuthor{Alberto Paoluzzi}{0000-0002-3958-8089}{2}, 
+% 	\anAuthor{First M. Last}{000-0000-1234-5678}{3} 
+}
+
+
+% ######################################
+% Here we need your affiliation and contact e-mail. Please edit   
+% affiliation as well as the e-mail fields.                                  
+% ######################################
+\affiliationSection{
+	\anAffiliation{1}{
+	Charles University,
+    Faculty of Medicine in Pilsen, 
+    Biomedical Center}{jirik@lfp.cuni.cz}
+	\anAffiliation{2}{Roma Tre University, Department of Mathematics and Physics}{paoluzzi@dia.uniroma3.it}
+	\anAffiliation{3}{NTIS, Faculty of Applied Sciences, University of West Bohemia}{}
+}
+
+
+% ######################################
+% Please decide on who the corresponding author is going to be 
+% and complete the section below                                            
+% ######################################
+\correspondingAuthor{Miroslav Jirik}{jirik@lfp.cuni.cz}
+
+
+% ########################################
+% Please type in your abstract below after the "\abstract{" part.
+% ########################################
+
+\abstract{
+In this paper we introduce a novel algebraic 
+% \textsc{lar-surf} 
+filter, based on algebraic topology methods, to extract and smooth the boundary surface of any subset of voxels arising from  the segmentation of a 3D medical image. 
+% TODO 3D medical image
+The input of the Linear Algebraic Representation (\textsc{lar}) Surface extraction filter (\textsc{lar-surf}) is defined as a \emph{chain}, i.e.~a vector from a linear space of chains, here subsets of voxels, represented in coordinates as a sparse binary vector. The output is produced by a linear mapping between spaces of 3- and 2-chains, given by the boundary operator $\partial_3:C_3 \to C_2$.  
+% In particular, when the input set of voxels is either not (4-)connected, or contains one or more empty regions inside, \textsc{lar-surf} generates a non-connected set of closed surfaces, i.e. quadrilateral faces or~a set of 2-cycles---using the language of algebraic topology. 
+The only data structures used by this approach are sparse arrays with one or two indices, i.e.~sparse vectors and sparse matrices. This work is based on \textsc{lar} algebraic methods and is implemented in Julia language, natively supporting parallel  computing on hybrid hardware architectures.
+}
+
+\keywords{
+Medical 3D, Computational Topology, Linear Algebraic Representation, LAR, Julia, Surface Extraction
+} 
+
+% DOI: 10.14733/cadconfP.2020.xxx-yyy
+\doi{10.3722/cadaps.2020.xxx-yyy}
+
+
+% \tableofcontents
+
+\input{intro}
+\input{background}
+\input{design}
+\input{implementation}
+\input{examples}
+\input{conclusion}
+
+\section*{ACKNOWLEDGEMENTS}
+\sloppy{
+This work was supported by Charles University Research Centre program UNCE/MED/006 ``University Center of Clinical and Experimental Liver Surgery'' 
+and Ministry of Education project ITI CZ.02.1.01/0.0/0.0/17\_048/0007280: Application of modern technologies in medicine and industry.
+} 
+The research was also supported by the project LO 1506 of the Czech Ministry of Education, Youth and Sports.
+% The authors appreciate the access to computing and storage facilities owned by parties and projects contributing to the National Grid Infrastructure MetaCentrum  provided under the program ``Projects of Large Research, Development, and Innovations Infrastructures'' (CESNET LM2015042).
+
+
+\appendix
+\input{appendix}
+
+\section*{ORCID}
+\orcid{Miroslav Jirik}{0000-0002-8002-2079}
+\orcid{Alberto Paoluzzi}{0000-0002-3958-8089}
+
+% \clearpage{}
+\referenceSection
+\bibliographystyle{CADA}
+% \bibliography{library,TSAS-2019,references}
+\bibliography{TSAS-2019,references}
+
+\bigskip
+\end{document}
+
+
+
