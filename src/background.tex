@@ -73,13 +73,21 @@ $m_{i,j}=1$ if and only if the $j$-th  $0$-cell $c^j_0$ belongs
 to the boundary of $i$-th $p$-cell $m_{i,j}$, and $m_{i,j}=0$ otherwise.  
 
 The computation of a boundary matrix $[\partial_p]$ begins by computing the compatible product of the two characteristic matrices $M_{p-1}M_{p}^t$.
-Let us note that the product of binary matrices is not binary, so by computing the (sparse) matrix product $(M_{p-1} M_{p}^t) = (n_{i,j})$, with $n_{i,j} = \sum_{k} m_{i,k}m_{k,j}$, we get for each $n_{ij}$ the \emph{number of vertices} shared by $c_{p-1}^i$ and $c_{p}^j$. When this number equates the cardinality of $c_{p-1}^i$, this elementary chain is contained on the boundary of $c_{p}^j$. In volume imaging data, made by cubic 3-cells and square 2-cells between adjacent pairs of 3-cells, everywhere we get  $n_{i,j}=4$, we may state $c_{2}^i\subset\partial c_{3}^j$. 
-Therefore, in each $i$ row of $M_{2} M_{3}^t = (n_{i,j})$, we have exactly \emph{six column} where  $n_{i,j} = 4$, since a cube (3-chain) has six boundary faces (2-chains). Look for this purpose at the rows of matrix in Figure~\ref{fig:boundary_matrix_4x4x4}.
-The unit incidence coefficients in $\left[\partial_3\right]$ are accordingly located by filtering the elements with value 4. All the other matrix element are set to 0. 
+Let us note that the product of binary matrices is not binary, so by computing the (sparse) matrix product $(M_{p-1} M_{p}^t) = (n_{i,j})$, with $n_{i,j} = \sum_{k} m_{i,k}m_{k,j}$, we get for each $n_{ij}$ the \emph{number of vertices} shared by $c_{p-1}^i$ and $c_{p}^j$. When this number equates the cardinality of $c_{p-1}^i$, this elementary chain is contained on the boundary of $c_{p}^j$. 
 
-Finally, consider the linear graded boundary operator $\partial_p : C_p \to C_{p-1}$. As such, it contains by columns the representation of domain basis elements, expressed as a linear combination of the basis elements of the range space. Therefore, the operator matrix $[\partial_d]$ is readily obtained by setting $[\partial_d](i,j)=1$ if $n_{i,j}=4$ and $[\partial_d](i,j)=0$ otherwise.  Of course, it will contain six non-zero elements for the column.  It may be worth remembering every 3-cell (voxel) of the volumetric data has exactly six 2-faces. 
+In volume imaging data, made by cubic 3-cells and square 2-cells between adjacent pairs of 3-cells, everywhere we get  $n_{i,j}=4$, we may state $c_{2}^i\subset\partial c_{3}^j$. 
+Therefore, in each $j$ column of $M_{2} M_{3}^t = (n_{i,j})$, implementing the map $\texttt{FC} : \texttt{CV} \to \texttt{VF}$, we have exactly \emph{six rows} where  $n_{i,j} = 4$, since a cube (3-chain) has six boundary faces (a 2-chain) on its boundary. 
+Of course, it will contain six non-zero elements for column.  It may be worth remembering every 3-cell (voxel) of the volumetric data has exactly six 2-faces. 
 
-It is possible to show that all the interesting relations of incidence/adjacency between cells of different dimensions can be both computed and efficiently queried by pairwise computing some matrix products, with one of terms possibly transposed, using only the two boundary and coboundary operator matrices $[\partial_p]$ and $[\delta_p]$, and where $[\delta_p] = [\partial_p^\top]$. We~may also show that such matrices are \emph{very sparse}, with their sparseness growing rapidly with the dimensions (see Section~\ref{sec:brick}). The pattern of non-zeros in matrix $[\partial_3]$ corresponding to a brick of shape $(4,4,4)$ is given in Fig.~\ref{fig:boundary_matrix_4x4x4}.
+Finally, consider the linear boundary operator $\partial_p : C_p \to C_{p-1}$. As such, it contains by columns the representation of domain basis elements, expressed as a linear combination of the basis elements of the range space. Therefore, the operator matrix $[\partial_p]$ is readily obtained by setting 
+\[
+[\partial_p](i,j)=1\quad\mbox{iff}\quad n_{i,j} = \sum_{k} m_{i,k}m_{k,j}=\texttt{\#}c^i_{p-1} \quad\mbox{and}\quad [\partial_p](i,j)=0 \quad\mbox{otherwise}.  
+\]
+
+Look for this purpose at the rows of matrix $[\partial_3]^t$ in Figure~\ref{fig:boundary_matrix_4x4x4}, where the matrix is  transposed for better shape ratio.
+The unit incidence coefficients in $\left[\partial_3\right]$, shown as white pixels, are accordingly located by filtering the $n_{i,j}$ elements with value 4. All the other matrix element are set to 0, shown as black pixels. 
+
+It is possible to show that \emph{all} the interesting relations of incidence/adjacency between cells of different dimensions can be both computed and efficiently queried by pairwise computing some matrix products, with one of terms possibly transposed, using only the two boundary and coboundary operator matrices $[\partial_p]$ and $[\delta_p]$, and where $[\delta_p] = [\partial_p^\top]$. We~may also show that such matrices are \emph{very sparse}, with their sparseness growing rapidly with the dimensions (see Section~\ref{sec:brick}). The pattern of non-zeros in matrix $[\partial_3]$ corresponding to a small brick of shape $(4,4,4)$ is given in Fig.~\ref{fig:boundary_matrix_4x4x4}.
 
 \begin{figure}[tbp] %  figure placement: here, top, bottom, or page
    \centering
@@ -87,16 +95,22 @@ It is possible to show that all the interesting relations of incidence/adjacency
    \caption{
    The binary image of \emph{sparse} coboundary matrix  $\left[\delta_2\right] = \left[\partial_3\right]^t : C_2 \to C_3$,
 %   The binary image of the coboundary operator  $\delta_2 = \partial_3^\top : C_2 \to C_3$, 
-   built for a small volumetric data (or a brick) with shape $(4,4,4)$. Note that the number of rows equates the size $4\times 4\times 4 = 64$ of the voxel set; the number of columns is $d\,n\,(1+n)^{d-1} = 3\times 4\times 25 = 300$. Of course, the number of non-zeros per row (cardinality of the facet set of a single voxel) is six, whereas the number of non-zeros per column is two, but on boundary facets. The letter F stands for \emph{Faces}, on matrix columns, and the C stands for \emph{Cells} (3-cells) on matrix rows.}
+   built for a small volumetric data (or a brick) with shape $(4,4,4)$. Note that the number of rows equates the size $4\times 4\times 4 = 64$ of the voxel set; the number of columns is $d\,n\,(1+n)^{d-1} = 3\times 4\times 25 = 300$. Of course, the number of non-zeros per row (cardinality of the facet set of a single voxel) is six, whereas the number of non-zeros per column is generally two, but on boundary facets. The letter F stands for \emph{Faces}, on matrix columns, and the C stands for \emph{Cells} (3-cells) on matrix rows.}
    \label{fig:boundary_matrix_4x4x4}
 \end{figure}
 
 \subsection{Multiindices from Cartesian indices}\label{sec:inds-from-cart}
 
-In order to utilize the topological algebra shortly recalled in this paper, we need to explicitly sort the cells of the various dimensions into linearly ordered sequences, possibly according to the linear order their information is linearly accommodated in computer storage. 
+In order to utilize the topological algebra shortly recalled in this paper, we need to explicitly sort the cells of the various dimensions into linearly ordered sequences, possibly according to the linear order their information is linearly accommodated in computer storage. In Julia, our algorithms are most efficiently written in terms of a single linear index \texttt{A[i]}, even if \texttt{A} is multi-dimensional. Regardless of the array's native indices, linear indices always range from \texttt{1:length(A)}. 
 
 \subsection{Taubin Smoothing}\label{sec:taubin}
 
-Every boundary chain extracted from an image block $\B(i,j,k,n)$ is a \emph{2-cycle}, i.e., a closed 2-chain---in other words, a 2-chain with empty boundary. Such 2-cycles are joined together by removing the double 2-cells (at the boundaries of adjacent bricks) after having suitably shifted their indices to an unique linear representation of the whole image. The resulting raster surface is made by mutually orthogonal raster facets, that must be smoothed in order to get a fair surface. A linear time and space algorithm for this purpose is the Laplacian smoothing, which iteratively  moves each vertex (0-cell) to the centroid of its neighbors. A well known weakness of this simple algorithm is the asymptotic convergence of the whole mesh to a single point, resulting in unfair size reduction even after few iterations.  Conversely, the Taubin smoothing algorithm~\cite{Taubin:1995:SPA:218380.218473,egst.20001029} alternates two Laplacian smoothing steps with \emph{shrink} and \emph{inflate} effects respectively, with the result of delivering pretty invariant sizes and volume of the smoothed mesh. The best results are obtained on meshes which have small variations of edge length and face angles, like for surfaces extracted from 3D raster images, as in our case.
+\paragraph{Brick joining}
+Every boundary chain extracted from an image block $\B(i,j,k,n)$ is a \emph{2-cycle}, i.e., a closed 2-chain, defined as a 2-chain with empty boundary. Such 2-cycles are joined together by removing the boundary artifacts, i.e., the double 2-cells at the boundaries of adjacent bricks, after having suitably shifted their indices to an unique linear representation of the whole surface. 
+The resulting raster surface is made by mutually orthogonal raster facets, and must be smoothed in order to get a fair surface. 
+
+
+\paragraph{Surface smoothing}
+A linear time and space algorithm for this purpose is the Laplacian smoothing, which iteratively  moves each vertex (0-cell) to the centroid of its neighbors. A well known weakness of this simple algorithm is the asymptotic convergence of the whole mesh to a single point, resulting in unfair size reduction even after few iterations.  Conversely, the Taubin smoothing algorithm~\cite{Taubin:1995:SPA:218380.218473,egst.20001029} alternates two Laplacian smoothing steps with \emph{shrink} and \emph{inflate} effects respectively, with the result of delivering pretty invariant sizes and volume of the smoothed mesh. The best results are obtained on meshes which have small variations of edge length and face angles, like for surfaces extracted from 3D raster images, as in our case.
  
 

@@ -15,15 +15,15 @@ The functions in this preliminary step include:
 \item analysis of resources available in the computational environment, including operating system, type and number of compute nodes (processors, cores, GPUs), number of cores per node, RAM and caches amounts;
 
 \item depending on the above, best decision for the \emph{size} of 3D image brick $\mathcal{B}$. With default $\emph{size}=64$,  the \emph{number of bricks} will be $n=\ceil{\ell_1/size}\times\ceil{\ell_2/size}\times\ceil{\ell_3/size}$. 
-Hence the default number of bricks is $n=256$, for standard images $512\times 512\times 256$;
+Hence the default number of bricks, of size $64^3$, is $m=8\times 8\times 4 = 256$, for standard medical images $512\times 512\times 256$;
 
 \sloppy{
-\item computation of Julia's sparse boundary matrix $[\partial_B]$, returning a value of type \texttt{SparseMatrixCSC\{Int8\}\{Int64\}}, where \texttt{Int8} and \texttt{Int64} are the types for values and indices, respectively, stored by Compressed Sparse Column (CSC) format; the storage of $[\partial_B]$ (for $\emph{size}$ = 64) requires about 45 MB;
+\item computation of sparse brick boundary matrix $[\partial_B]$, where \texttt{Int8} and \texttt{Int64} are the types for values and indices, returning a sparse matrix value of type \texttt{SparseMatrixCSC\{Int8\}\{Int64\}}, stored by Compressed Sparse Column (CSC) format. The storage of $[\partial_B]$ (for $\emph{n}$ = 64) requires about 9 MB;
 }
 
 \item creation of either a local or distributed \texttt{channel} to implement a producer/consumer model of parallel/distributed computation, depending on available resources;
 
-\item distribution of matrix $[\partial_B]$, of default size $45$ MB, to all available nodes/cores (Julia workers), using the Julia macro \texttt{@eveywhere}. 
+\item distribution of matrix $[\partial_B]$, of default size $9$ MB, to all available nodes/cores (Julia workers), using the Julia macro \texttt{@eveywhere}. 
 
 \end{enumerate}
 

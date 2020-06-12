@@ -75,12 +75,13 @@ EV = collect(Set{Array{Int64,1}}(vcat(map(CV2EV, CV)...)))
  [3,9], [3,5], [9,11], [7,9], [14,20], [7,8], [22,24], [19,20], [8,10], [15,16], [10,12], [4,6]]
 
 function K(CV)
-    I = vcat( [ [k for h in CV[k]] for k =1: length(CV) ]...)
-    J = vcat(CV ...)
-    Vals = Int8[1 for k=1: length(I)]
+    I = vcat( [ [k for h in CV[k]] for k =1: length(CV) ]...);
+    J = vcat(CV ...);
+    Vals = Int8[1 for k=1: length(I)];
     return SparseArrays.sparse(I,J,Vals)
 end
-M0 = K(VV); M1 = K(EV); M2 = K(FV); M3 = K(CV)
+VV = [[k] for k=1:size(V,2)];
+M0 = K(VV); M1 = K(EV); M2 = K(FV); M3 = K(CV);
 \end{Verbatim}
 
 \vspace{10pt}
