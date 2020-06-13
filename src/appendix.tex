@@ -1,36 +1,40 @@
 
 \section{Appendix}
+
+Here we provide, for the sake of readers, a list of symbols used in the paper, and a small set of related definitions. 
+A description of public dataset used in the experiments, and 
+a coding example of computation of the sparse $[\partial_3]$ boundary matrix in Julia is finally given.
+
 \subsection{Symbol list}
 
 \begin{description}
 \item[$\mathcal{I}$]  three-dimensional medical image
-\item[$\ell_1, \ell_2, \ell_3$]  dimensions of image
-\item[$\mathcal{S}$]  segment: a subset of voxels from image segmentation
-\item[$\mathcal{B}$] 3D image brick
-\item[$size$] lateral dimension of cubic brick $\mathcal{B}$
-\item[$n$]	number of bricks $\mathcal{B}$ (jobs) in $\mathcal{I}$
-\item[[$\partial_\mathcal{B}$] ]  boundary matrix for brick $\mathcal{B}$
-\item[$C_p$] linear (vector) space of $p$-chains
-\item[$\nu\in C_p$] $p$-chain
-\item[[$\nu$]] coordinate representation (binary vector) of  $\nu$
-\item[$\E^3$] Euclidean 3-space
+\vspace{-2.5mm}\item[$\ell_1, \ell_2, \ell_3$]  dimensions of image
+\vspace{-2.5mm}\item[$\mathcal{S}$]  segment: a subset of voxels from image segmentation
+\vspace{-2.5mm}\item[$\mathcal{B}$] 3D image brick
+\vspace{-2.5mm}\item[$size$] lateral dimension of cubic brick $\mathcal{B}$
+\vspace{-2.5mm}\item[$n$]	number of bricks $\mathcal{B}$ (jobs) in $\mathcal{I}$
+\vspace{-2.5mm}\item[[$\partial_\mathcal{B}$]]  boundary matrix for brick $\mathcal{B}$
+\vspace{-2.5mm}\item[$C_p$] linear (vector) space of $p$-chains
+\vspace{-2.5mm}\item[$\nu\in C_p$] $p$-chain
+\vspace{-2.5mm}\item[[$\nu$]] coordinate representation (binary vector) of  $\nu$
+\vspace{-2.5mm}\item[$\E^3$] Euclidean 3-space
 \end{description}
 
 
 \subsection{Definitions}
 \begin{description}
-
 \item[Boundary model] Closed manifold surface of the boundary of a solid model
-\item[CSC]  Compressed Sparse Column format for sparse matrices
-\item[Global coordinates]  Integer linear coordinates of $\mathcal{I}$
-\item[Local coordinates] Integer linear coordinates of $\mathcal{B}$
-\item[Cartesian coordinates] Integer triples $(i,j,k)$ one-to-one with voxels
-\item[Voxels] Individual elements in 3D image (3-cells)
-\item[$p$-chain] Formal linear combination of $p$-cells with coefficients in $\{0,1\}$
-\item[Coord. repr.]  Binary vector (for $p$-chains) or binary matrix (for chain operators)
-\item[Quad]	Geometric quadrilateral; convex polygon with four vertices
-\item[Foreground voxel] Individual element of a segment $\mathcal{S}$
-\item[Segment]	Subset of voxels resulting from image segmentation
+\vspace{-2.5mm}\item[CSC]  Compressed Sparse Column format for sparse matrices
+\vspace{-2.5mm}\item[Global coordinates]  Integer linear coordinates of $\mathcal{I}$
+\vspace{-2.5mm}\item[Local coordinates] Integer linear coordinates of $\mathcal{B}$
+\vspace{-2.5mm}\item[Cartesian coordinates] Integer triples $(i,j,k)$ one-to-one with voxels
+\vspace{-2.5mm}\item[Voxels] Individual elements in 3D image (3-cells)
+\vspace{-2.5mm}\item[$p$-chain] Formal linear combination of $p$-cells with coefficients in $\{0,1\}$
+\vspace{-2.5mm}\item[Coord. repr.]  Binary vector (for $p$-chains) or binary matrix (for chain operators)
+\vspace{-2.5mm}\item[Quad]	Geometric quadrilateral; convex polygon with four vertices
+\vspace{-2.5mm}\item[Foreground voxel] Individual element of a segment $\mathcal{S}$
+\vspace{-2.5mm}\item[Segment]	Subset of voxels resulting from image segmentation
 \end{description}
 
 \subsection{3D-Ircadb Dataset}

@@ -46,36 +46,31 @@ For a fixed brick size $n$, the boundary operator $\partial_d : C_d\to C_{d-1}$,
 % \cite{DiCarlo2014}, 
 and inlined in the generated boundary extraction code.
 
-It is easy to see that each operator's matrix $[\partial_d]$ is \emph{very sparse}, since it contains $2\times d$ non-zero elements (ones) for each column (of length $n^d$), i.e.~4 ones and 6 ones for the 2D and 3D case, respectively. In fact the matrix of a linear operator between linear spaces contains by columns the basis element of the domain space, represented in the target space. In our case, the former is an image element (2-cube or 3-cube), represented as the chain of its boundary---i.e. either a 1-cycle of 4 edges, or  a 2-cycle of 6 faces, respectively.  
+It is easy to see that all matrices $[\partial_d]$ are \emph{very sparse}, since they contains $2d$ non-zeros (ones) for each column (of length $n^d$), i.e.~4 ones or 6 ones per columns for the 2D and 3D case, respectively. We remind that the matrix of a linear operator between linear spaces contains by columns the basis element of the domain, represented in the target space. In our case, the former is an image element (2-cube or 3-cube), represented as the chain of its boundary cells, i.e. either a 1-cycle of 4 edges (2D), or  a 2-cycle of 6 faces (3D), respectively.  
 
-The number of rows of $[\partial_d]$ equates the dimension of the linear space $C_{d-1}$, i.e.~the number of $(d-1)$-cells---elementary $(d-1)$-chains---in the cellular partition of the image. To compute their number, we act in two steps. (a) First we map one-to-one the $n^d$ $d$-cells with $d$ adjacent $(d-1)$-cells, so getting $d\,n^d$ distinct basis elements of $C_{d-1}$. (b) Then we complete the basis by adjoining $n^{d-1}$ boundary elements for each of the $d$ dimensions of the brick, so providing further $d\,n^{d-1}$ basis elements for $C_{d-1}$. The dimension of $C_{d-1}$, and therefore the number of rows of $[\partial_d]$ matrix is $d\,(n^{d-1}+n^{d}) = d\,n\,(1+n)^{d-1}$. The number of column equates the number of basis elements of $C_d$, i.e.~the number $n^d$ of brick elements.
+The number of rows of $[\partial_d]$ equates the dimension of the linear space $C_{d-1}$, i.e.~the number of $(d-1)$-cells of the cellular partition of the image. To compute their number, we act in two steps: (a) first we map one-to-one the $n^d$ $d$-cells with $d$ adjacent $(d-1)$-cells, so getting $d\,n^d$ distinct basis elements of $C_{d-1}$; (b)~then we complete the basis by adjoining $n^{d-1}$ boundary elements for each of the $d$ dimensions of the brick, so providing further $d\,n^{d-1}$ basis elements for $C_{d-1}$. The dimension of $C_{d-1}$, and therefore the number of rows of $[\partial_d]$ matrix is $d\,(n^{d-1}+n^{d}) = d\,n^{d-1}\,(1+n)$. The number of columns of $[\partial_d]$ equates the number of basis elements of $C_d$, i.e.~the number $n^d$ of brick elements.
 
 \begin{figure}[htbp] %  figure placement: here, top, bottom, or page
     \centering
         \includegraphics[width=0.3\linewidth]{figs/grid2.png} 
-   \caption{Rappresentation of the mapping between 2-cells and 1-cells, used to compute the number of 2-cells of a 2D brick of size $n^d = 10^2$. The dimensions of the chain spaces are: $\dim C_2 = n^d$, $\dim C_1 = d n^d + dn$.  }
+   \caption{Mapping between 2-cells and 1-cells, used to compute the size of $[\partial_2]: C_2\to C_1$ for a 2D brick of size $n^d = 10^2$. The dimensions of the chain spaces are: $\dim C_2 = n^d = 100$, $\dim C_1 = dn^d + dn^{d-1} = 200+20$.  }
 \end{figure}
 
 \paragraph{Sparsity and size of boundary matrix }\label{sec:bm-size}
 
-As we have seen, we have $2d$ non-zero elements for each column of $[\partial_d]$ matrix, so that the total number of non-zeros is $2d\,n^d$. The number of matrix element is given by the number of rows ($(d-1)$-cells), times the number of elements per row, i.e., $d\,n\,(1+n)^{d-1} \times n^d$, giving $0 \leq sparsity \leq 1$, with: 
+As we have seen, we have $2d$ non-zero elements for each column of $[\partial_d]$ matrix, so that the total number of non-zeros is $2d\,n^d$. The number of matrix element is given by the number of rows ($(d-1)$-cells), times the number of elements per row, i.e., $d\,n^{d-1}\,(1+n) \times n^d$, giving $0 \leq sparsity \leq 1$, with: 
 \[
 \mbox{sparsity} = 1 - 
 \frac{\mbox{non-zero\ elements}}{\mbox{total\ elements}} =  1 - 
-\frac{2d\times n^d}{d\,n\,(1+n)^{d-1} \times n^d} =  1 - 
-\frac{2}{n+n^d}
+\frac{2d\times n^d}{d\,n^{d-1}\,(1+n) \times n^d} =  1 - 
+\frac{2}{n^{d-1}+n^d}
 \]
 Using sparse matrices in CSC (Compressed Sparse Column) format we get a storage size:
 \[
 space(\partial_d) = 2\times \#\mbox{nzero} + \#\mbox{columns} = 2\times 2d\,n^d + n^d = (4d+1)n^d.
 \]
 In conclusion, for brick size $n=64$, the matrix $[\partial_d]$ requires for 2D bricks $9\times 64^2=36,864$ memory elements, and for 3D bricks $13\times 64^3=3,407,872$ memory elements. Counting the bytes for the standard implementation of a sparse binary matrix (1 byte for values and 8 bytes for indices) we get 
-\[
-(1+4)2dn^d + 4n^d 
-= (10d+4) n^d
-\mbox{\ bytes},
-\] 
-so requiring $98$\,KB for 2D brick and $8.913$\,MB for 3D brick.
+$(18d + 8) n^d$ bytes, so requiring $180$\,KB for 2D brick and $12$\,MB for 3D brick.
 
 
 % \begin{figure}[htbp] %  figure placement: here, top, bottom, or page
@@ -99,11 +94,11 @@ Then, we consider each segment portion $c_{i,j,k} = S \cap \B(i,j,k,n)$ and comp
 \[
 \T{\textbf{B}} = [\partial_3(n)]\, \T{S},
 \]
-where the boundary matrix has dimension $dn(n+1)^{d-1} \times n^d$.
-Of course, the $\T{\textbf{B}}$ sparse matrix has the same column number $M$ of $\T{S}$, because each column contains the boundary representation of the corresponding $S \cap \B(i,j,k,n)$, and the number of matrix rows is the dimension $d\,n\,(1+n)^{d-1}$ of the linear space $C_2$ of 2-chains.
+where the boundary matrix has dimension $dn^{d-1}(1+n) \times n^d$.
+Of course, the $\T{\textbf{B}}$ sparse matrix has the same column number $M$ of $\T{S}$, because each column contains the boundary representation of the corresponding $S \cap \B(i,j,k,n)$, and the number of matrix rows is the dimension $d\,n^{d-1}\,(1+n)$ of the linear space $C_2$.
 
 \paragraph{Embedding}
-Two final computational steps are required, to embed the 2-chains in $\E^3$ space, and to assemble the whole resulting surface. In particular, we need to compute the \emph{embedding function} $\mu : C_0 \to \E^3$, where $C_0$ is the space of 0-chains, one-to-one with the vertices of the extracted surface. The simplest solution is to associate  four 0-cells to each 2-cell of the extracted surface, i.e.~to each non-zero entry in every column of $\T{\textbf{B}}$.  The $\mu$ function  can be computed by identifying, via  element position in the column, a triple of integer values $0\leq x\leq u$, $0\leq y\leq v$, and $0\leq z\leq w$ for each vertex of the 2-cell.  The mapping can be implemented using a dictionary, that will store the inverse coordinate transformation used at the beginning, i.e.~the one from linear to Cartesian coords, in order of not duplicating the output vertices.   
+Two final computational steps are required, to embed the 2-chains in $\E^3$ space, and to assemble the whole resulting surface. In particular, we need to compute the \emph{embedding function} $\mu : C_0 \to \E^3$, where $C_0$ is the space of 0-chains, one-to-one with the vertices of the extracted surface. The simplest solution is to associate  four vertices to each 2-cell of the extracted surface, i.e.~to each non-zero entry in every column of $\T{\textbf{B}}$.  The $\mu$ function  can be computed by identifying, via  element position in the column, a triple of integer values $0\leq x\leq u$, $0\leq y\leq v$, and $0\leq z\leq w$ for each vertex of the 2-cell.  The mapping can be implemented using a dictionary, that will store the inverse coordinate transformation used at the beginning, i.e.~the one from Cartesian to linear coords, in order of not duplicating the output vertices.   
 
 \begin{figure}
 \centering
@@ -118,34 +113,34 @@ the Ircad dataset \cite{ircad}. The other three images show the surface of the l
 } \label{fig:liver}
 \end{figure}
 
-
-\paragraph{Surface assembling}
-
-All boundary surface subsets $B(i,j,k) = \partial_3 S \cap \B(i,j,k)$, stored by  columns in $\T{B}$, are embedded in the same coordinate space. In formal terms, using the standard terminology of LAR scheme: 
-\[
-\texttt{Lar}(S) := (\texttt{Geom}(S), \texttt{Top}(S)) = (\texttt{V}, \texttt{CV}),
-\]
-where, with respect to the \emph{chain complex} $C_3\to C_2\to C_1\to C_0$ induced by the input image $Im$ and segment portion $S_{i,j,k}$, we get
-\begin{align}
-\texttt{Geom} &:= \mu(C_0) = \texttt{V},
-\\
-\texttt{Top} &:= C_3(S) = \T{S} \mapsto \texttt{CV}.
-\end{align}
-and
-\begin{align}
-\texttt{Lar}(B_{i,j,k}) &:= (\texttt{Geom}(B_{i,j,k}), \texttt{Top}(B_{i,j,k})) = (\texttt{W}, \texttt{FW}),
-\\
-\texttt{Geom} &:= \mu(C_0(B_{i,j,k})) = \texttt{W} \subset \texttt{V},
-\\
-\texttt{Top} &:= C_2(B_{i,j,k}) = \T{\textbf{B}}_{i,j,k} \mapsto \texttt{FW} \subset \texttt{FV}.
-\end{align}
-
-
-A translation transformation applied to each vertex subset $\texttt{W}_{i,j,k}$ with translation  vector $\v{t} = [i,j,k]$ will therefore move the surface patch in the proper space position, so finally giving
-\[
-\texttt{Lar}(\textbf{B}) = \oplus_{i,j,k}\texttt{Lar}(\partial_3 S_{i,j,k})) = \oplus_{i,j,k}(\texttt{W}, \texttt{FW}) .
-\]
+%
+%\paragraph{Surface assembling}
+%
+%All boundary surface subsets $B(i,j,k) = \partial_3 S \cap \B(i,j,k)$, stored by  columns in $\T{B}$, are embedded in the same coordinate space. In formal terms, using the standard terminology of LAR scheme: 
+%\[
+%\texttt{Lar}(S) := (\texttt{Geom}(S), \texttt{Top}(S)) = (\texttt{V}, \texttt{CV}),
+%\]
+%where, with respect to the \emph{chain complex} $C_3\to C_2\to C_1\to C_0$ induced by the input image $Im$ and segment portion $S_{i,j,k}$, we get
+%\begin{align}
+%\texttt{Geom} &:= \mu(C_0) = \texttt{V},
+%\\
+%\texttt{Top} &:= C_3(S) = \T{S} \mapsto \texttt{CV}.
+%\end{align}
+%and
+%\begin{align}
+%\texttt{Lar}(B_{i,j,k}) &:= (\texttt{Geom}(B_{i,j,k}), \texttt{Top}(B_{i,j,k})) = (\texttt{W}, \texttt{FW}),
+%\\
+%\texttt{Geom} &:= \mu(C_0(B_{i,j,k})) = \texttt{W} \subset \texttt{V},
+%\\
+%\texttt{Top} &:= C_2(B_{i,j,k}) = \T{\textbf{B}}_{i,j,k} \mapsto \texttt{FW} \subset \texttt{FV}.
+%\end{align}
+%
+%
+%A translation transformation applied to each vertex subset $\texttt{W}_{i,j,k}$ with translation  vector $\v{t} = [i,j,k]$ will therefore move the surface patch in the proper space position, so finally giving
+%\[
+%\texttt{Lar}(\textbf{B}) = \oplus_{i,j,k}\texttt{Lar}(\partial_3 S_{i,j,k})) = \oplus_{i,j,k}(\texttt{W}, \texttt{FW}) .
+%\]
 
 
 \subsection{Brick-level parallelism}\label{sec:brick-parallelism}
-In the computational pipeline discussed in this paper, several steps can be efficiently performed in parallel at the image-brick level, depending on the embarrassingly data-parallel nature of the problem. In particular, little effort is needed to separate the problem into several  parallel tasks $S_{i,j,k}$, using multiarray slicing. The granularity of parallelism, depending on the brick size $n$, is further enforced by the computation of a single boundary matrix $[\partial_d(n)]$ function of $n$, so that the initial communication cost of broadcasting the matrix to compute nodes can be carefully controlled, and finely tuned depending on the system architecture. The whole approach is appropriate  for SIMD (Single Instruction, Multiple Data) hybrid architectures of CPUs and GPUs, since only the initial brick setup of boundary matrix and image slices, as well the final collection of computed surface portions, require inter-process communication.
+In the computational pipeline discussed in this paper, several steps can be efficiently performed in parallel at the image-brick level, depending on the embarrassingly data-parallel nature of the problem. In particular, little effort is needed to separate the problem into several  parallel tasks $S_{i,j,k}$, using multiarray slicing. The granularity of parallelism, depending on the brick size $n$, is further enforced by the computation of a single boundary matrix $[\partial_d(n)]$, function only of brick size $n$, so that the initial communication cost of broadcasting the matrix to compute nodes can be carefully controlled, and finely tuned depending on the system architecture. The whole approach is appropriate  for SIMD (Single Instruction, Multiple Data) hybrid architectures of CPUs and GPUs, since only the initial brick setup of boundary matrix and image slices, as well the final collection of computed surface portions, require inter-process communication.
