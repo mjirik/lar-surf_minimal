@@ -9,12 +9,12 @@
 \includegraphics[height=0.3\textwidth,width=0.33\textwidth]{figs/image-2.png}%
 \includegraphics[height=0.3\textwidth,width=0.33\textwidth]{figs/image-3.png}%
 \caption{\small Triangulated surfaces of the macroscopic and microscopic structures of the liver extracted by the \textsc{lar-surf} algorithm. 
-(a) Detail of the portal vein (PV) with resolution (??) $1.6\times0.57\times0.57$ $[mm]$.
+(a) Detail of the portal vein (PV) with resolution $1.6\times0.57\times0.57$ $[mm]$.
 (b) model of the human liver, with portal vein and hepatic artery connected to colon and stomach.
 (c) microvasculature of a pig liver, based on corrosion cast of interlobular veins prepared by Eberlova
 \cite{eberlova2017use}. The size of the specimen is 0.936 $[mm]$ along each axis and the resolution of the Micro-CT data is 4.682 $\mu{}m$. Note that brick boundaries look flat.
 }
-\label{fig:schema}
+\label{fig:example_liver_macro_micro}
 \end{figure}
 
 %\begin{figure}
@@ -63,7 +63,7 @@ The visualization can
 be seen in Fig. \ref{fig:example_liver_macro_micro}. 
 
 
-\begin{lstlisting}[caption={Get surface from DICOM volumetric data}, label={lst:example1}]
+\begin{lstlisting}[caption={Get surface from DICOM volumetric data}, label={lst:example1}, basicstyle=\small]
 using Distributed
 using Pio3d  # Read 3D data from DICOM files
 addprocs(3)  # set number of processors
@@ -91,7 +91,7 @@ The 3D image resolution is the same.
 The number of input voxels is 103533. 
 The output surface is created by 90822 vertices and 182124 triangles. 
 
-The right bottom image of Fig. \ref{fig:example_liver_macro_micro} is the surface of the microvasculature of pig liver. 
+The right image of Fig. \ref{fig:example_liver_macro_micro} is the surface of the microvasculature of pig liver. 
 The volumetric image is based on Micro-CT data of corrosion casts of pig liver.
 \cite{eberlova2017use}.
 The size of the visualized data is $100\times100\times100$ voxels and the size of the voxel is 4.682 $\mu{}m$.
