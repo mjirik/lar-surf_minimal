@@ -1,7 +1,7 @@
 
 \section{Julia implementation}\label{sec:julia}
 
-The computer code is implemented in Julia language~\cite{BEKS14} according to the workflow described below, whose stages are parallelized and/or optimized in various ways. The workflow scheme can be seen on Fig. \ref{fig:schema}. The implementation is available on GitHub \cite{larsurf-github} and our \texttt{LarSurf.jl} package can be installed using a standard Julia package register.
+The computer code is implemented in Julia language~\cite{BEKS14} according to the workflow described below, whose stages are parallelized and/or optimized in various ways. The workflow scheme can be seen in Fig. \ref{fig:schema}. The implementation is available on GitHub \cite{larsurf-github} and our \texttt{LarSurf.jl} package can be installed using a standard Julia package register.
 
 \subsection{Parallel workflow}\label{sec:implementation}
 
@@ -10,11 +10,11 @@ The computer code is implemented in Julia language~\cite{BEKS14} according to th
 The functions in this preliminary step include:
 \begin{enumerate}
 
-\item the input of 3D medical image $\mathcal{I}$ with \emph{shape} $(\ell_1, \ell_2, \ell_3)$, such that: $\mathcal{I} = [\ell_1]\times[\ell_2]\times[\ell_3]$, where $[\ell_k] = [1,2,\ldots,\ell_k]$;
+\item input of 3D medical image $\mathcal{I}$ with \emph{shape} $(\ell_1, \ell_2, \ell_3)$, such that: $\mathcal{I} = [\ell_1]\times[\ell_2]\times[\ell_3]$, where $[\ell_k] = [1,2,\ldots,\ell_k]$;
 
-\item analysis of resources available in the computational environment, including operating system, type and number of compute nodes (processors, cores, GPUs), number of cores per node, RAM and caches amounts;
+\item analysis of resources available in the computational environment, including operating system, type and number of compute nodes (processors, cores, GPUs), number of cores per node, RAM and cache amounts;
 
-\item depending on the above, best decision for the \emph{size} of 3D image brick $\mathcal{B}$. With default $\emph{size}=64$,  the \emph{number of bricks} will be $n=\ceil{\ell_1/size}\times\ceil{\ell_2/size}\times\ceil{\ell_3/size}$. 
+\item depending on the above, best choice of the \emph{size} of 3D image brick $\mathcal{B}$. With default $\emph{size}=64$,  the \emph{number of bricks} will be $n=\ceil{\ell_1/size}\times\ceil{\ell_2/size}\times\ceil{\ell_3/size}$. 
 Hence the default \emph{number} of bricks, of size $64^3$, is $m=8\times 8\times 4 = 256$, for standard medical images $512\times 512\times 256$;
 
 \sloppy{
@@ -47,9 +47,9 @@ Communication and data synchronization are managed through \emph{Channels}, whic
 
 \item transform  each block \emph{from global} $[\ell_1]\times[\ell_2]\times[\ell_3]$ to \emph{local coordinates} $[n]\times[n]\times[n]$;
 
-\item further transform of each \emph{foreground voxel} $\nu\in\mathcal{S}\subseteq\mathcal{I}$ from Cartesian to linear coordinates, using the suitable Julia's library functions.
+\item further transform of each \emph{foreground voxel} $\nu\in\mathcal{S}\subseteq\mathcal{I}$ from Cartesian to linear coordinates, using suitable functions from Julia's library.
 
-\item enqueuing the job (as a sequence of integer positions for the non-zeros image elements aligned in a memory buffer of proper \texttt{Channel} type).
+\item enqueuing the job (as a sequence of integer positions for the non-zero image elements aligned in a memory buffer of proper \texttt{Channel} type).
 \end{enumerate}
 
 \paragraph{3-Chain encoding}
@@ -57,23 +57,24 @@ Communication and data synchronization are managed through \emph{Channels}, whic
 The interesting part of the \emph{Image} $\mathcal{I}$ is called \emph{Segment} $\mathcal{S}$. The goal of the whole \emph{workflow} is to extract a \emph{boundary model} of $\mathcal{S}$ from $\mathcal{I}$. The portion of $\mathcal{S}$ inside $\mathcal{B}$, will be denoted as $\mathcal{S}(B)$.
 Each block $\mathcal{B}$ of the 3D image must by converted into the \emph{coordinate representation} of a vector $\nu\in C_3$ in the linear space  of 3-chains. 
 
-In coordinates local to $\mathcal{B}$, once fixed an ordering from Cartesian to linear coordinates, this vector is represented by a \emph{binary array} of length $size^3$. With $size=64$, we have $64^3=262144$,  with a non-zero value (i.e.~$1$) for each foreground voxel in $\mathcal{S}(B)$. Therefore, the coded segment portion $\mathcal{S}(B)$ results with a space occupancy of about $262$ KB if encoded as a full array (i.e.~including the zero values). Whether encoded as a sparse vector, its space occupancy will correspondingly decrease.
+In coordinates local to $\mathcal{B}$, once an ordering from Cartesian to linear coordinates has been fixed, this vector is represented by a \emph{binary array} of length $size^3$. With $size=64$, we have $64^3=262144$,  with a non-zero value (i.e.~$1$) for each foreground voxel in $\mathcal{S}(B)$. Therefore, the coded segment portion $\mathcal{S}(B)$ results in a space occupancy of about $262$ KB if encoded as a full array (i.e.,~including zero values). When encoded as a sparse vector, its space occupancy will correspondingly decrease.
 
 \begin{enumerate}
 
-\item each encoding task produces either a full or sparse binary vector. With full or sparse arrays depending by one index, we get either 262 KB or less per job, correspondingly;
+\item each encoding task produces either a full or sparse binary vector. 
+We get either 262 KB or less per job, depending on the use of either a full vector, or a sparse one;
 
-\item special format for sparse CSC (Compressed Sparse Column) vectors can be used, since the \emph{value} data for non-zeros does not need storage. Hence only a single 1-array of \texttt{Int64} row positions (with total length equal to the number of non-zeros in the block, with $8\times\mathtt{nnz}$ kB storage) is needed;
+\item a special format for sparse CSC (Compressed Sparse Column) vectors can be used, since the \emph{value} data for non-zeros does not need storage. Hence only a single 1-array of \texttt{Int64} row positions (with total length equal to the number of non-zeros in the block, with $8\times\mathtt{nnz}$ kB storage) is needed;
 
-\item prepare subsequences of such data vectors (non-zero linear row indices), in order to feed efficiently the available processor threads.
-In case of the presence of one/more GPUs, a smaller size of the block---and hence of the boundary matrix and the encoded 3-chain vectors---and then much higher vector numbers, are preferable for speed.
+\item prepare sequences of such data vectors, in order to feed efficiently the available processor threads.
+\item In case of presence of one/more GPUs, a smaller size of the block is preferable for speed, even with smaller boundary matrices and higher numbers of coded vector chains.
 
 \end{enumerate}
 
 \paragraph{SpMM Multiplication}\label{SpMM-multiplication}
-According to the current literature~
-\cite{Buluc2017} it is more convenient to execute SpMV (sparse matrix-vector) multiplications than SpMSpV (sparse matrix-sparse vector) multiplications. Since we have 256 such jobs (one multiplication per block) to perform in the default setting of the algorithm (
-thize of the block $64^3$; the size of the image $512^2\times 256$), or more in case of either smaller blocks or image greater than the standard one, this stage must be evidently parallelized and carefully tuned, possibly by using the GPU, if available.
+According to current literature~
+\cite{Buluc2017}, it is more convenient to execute SpMV (sparse matrix-vector) multiplications than SpMSpV (sparse matrix-sparse vector) multiplications. Since we have 256 such jobs (one multiplication per block) to perform in the default setting of the algorithm (
+size of the block $64^3$; the size of the image $512^2\times 256$), or more in case of either smaller blocks or image larger than the standard one, this stage must be evidently parallelized and carefully tuned, possibly by using the GPU, if available.
 \begin{enumerate}
 
 \item the total speed of this stage is strongly dependent on the hardware available, on the granularity of bricks, and on the choice between dense/sparse storage of encoded 3-chains;
@@ -83,7 +84,7 @@ thize of the block $64^3$; the size of the image $512^2\times 256$), or more in 
 \end{enumerate}
 
 \paragraph{2-Chain decoding}\label{sec:two-chain-decoding}
-Each multiplication of $[\partial_B] : C_3 \to C_2$, times a 3-chain $\nu\in C_3$, produces a 2-chain  $\sigma\in C_2$, i.e.~the \emph{coordinate representation} of the \emph{boundary vector} $\sigma\in C_2$.  The inverse of the coding algorithm is executed in the present stage.  This process can also be partially superimposed in time with the previous ones, depending on the size of the memory buffers used to feed the CPU cores or the GPUs and get their results. Its elementary steps follow:
+Each multiplication of $[\partial_B] : C_3 \to C_2$, times a 3-chain $\nu\in C_3$, produces a 2-chain  $\sigma\in C_2$, i.e.,~the \emph{coordinate representation} of the \emph{boundary vector} $\sigma\in C_2$.  The inverse of the coding algorithm is executed in the present stage.  This process can also be partially superimposed in time with the previous ones, depending on the size of the memory buffers used to feed the CPU cores or the GPUs and get their results. Its elementary steps are as follows:
 
 \begin{enumerate}
 
@@ -91,27 +92,28 @@ Each multiplication of $[\partial_B] : C_3 \to C_2$, times a 3-chain $\nu\in C_3
 
 \item conversion from linear indices to Cartesian indices in coordinates local to the $\mathcal{B}$ block, using the appropriate library functions;
 
-\item conversion from each Cartesian index value to a suitably oriented (i.e.~with proper attitude) geometry quadrilateral (or pair of triangles) in local coordinates.
+\item conversion from each Cartesian index value to a suitably oriented (i.e.,~with proper attitude) geometry quadrilateral (or pair of triangles) in local coordinates.
 
 \end{enumerate}
 
-Julia's vectorized pipeline data-flow was the more appropriate implementation model for the job of workers.
+Julia's vectorized pipeline data-flow was 
+the more appropriate model to feed the workers' jobs.
 
 \paragraph{Assembling and artifact filtering}\label{sec:artifact-filtering}
-The results of the previous stages can be described as a \emph{collection of sets} of \emph{geometric quadrilaterals (quads)}, each one encoded as an array of quadruples of integer indices, pointing to the linear array of grid vertices associated to the image block $\mathcal{B}$.  In other words, \emph{all quads} of \textbf{each job} are now given in the \textbf{same} \emph{local coordinates}.  Besides putting each partial surface $\mathcal{S}(B) = (\texttt{V}_B, \texttt{FV}_\sigma)$ in the global coordinate system of the image, the present stage must eliminate the redundant boundary features possibly generated at the edges of the partial surface $\mathcal{S}(B)$ within each block $\mathcal{B}$:
+The results of the previous stages can be described as a \emph{collection of sets} of \emph{geometric quadrilaterals (quads)}, each one encoded as an array of quadruples of integer indices, pointing to the linear array of grid vertices associated with the image block $\mathcal{B}$.  In other words, \emph{all quads} of \textbf{each job} are now given in the \textbf{same} \emph{local coordinates}.  Besides putting each partial surface $\mathcal{S}(B) = (\texttt{V}_B, \texttt{FV}_\sigma)$ in the global coordinate system of the image, the present stage must eliminate the redundant boundary features possibly generated at the edges of the partial surface $\mathcal{S}(B)$ within each block $\mathcal{B}$:
 
 \begin{enumerate}
 
-\item translate each array $\mathtt{FV}_\sigma$, of type \texttt{Lar.Cells}, by summing to each vertex index the linearized offset of the Cartesian coordinates $(i,j,k)$ of the $\mathcal{B}$'s \emph{reference vertex}, i.e.~the one with lowest \emph{Cartesian coordinates} within the $\mathcal{B}$ block.
+\item translate each array $\mathtt{FV}_\sigma$, of type \texttt{Lar.Cells}, by summing each vertex index to the linearized offset of the Cartesian coordinates $(i,j,k)$ of the $\mathcal{B}$'s \emph{reference vertex}, i.e.,~the one with lowest \emph{Cartesian coordinates} within the $\mathcal{B}$ block.
 
 \item remove both instances of \emph{double quads} generated by \texttt{Lar} software at the block boundaries 
 (see Fig.~\ref{fig:brickboundary}). 
 % TODO fix reference probably uncomment next line to link it to Figure 3
 % (see Figure~\ref{fig:example}). 
-They are artifacts generated by the decomposition of the whole image into a number of blocks of tractable size.
+These are artifacts generated by the decomposition of the whole image into a number of blocks of tractable size.
 
 \item 
-a smart strategy of removal of such artifacts was used, which does not require any sorting nor searching on the assembled array of quads. The output set of 2-cells (or triangles) is just rewritten, discarding the elements pointing to all vertices with one coordinate equal to a block boundary. A proper software filter was applied for this purpose.
+a smart strategy to remove such artifacts was used, that does not require any sorting nor searching on the assembled array of quads. The output set of 2-cells (or triangles) is just rewritten, discarding the elements pointing to all vertices with one coordinate equal to a block boundary. A proper software filter was applied to this purpose.
 % The details of this \emph{artifact filtering} are elucidated in  section~\ref{sec:covering}.
 % TODO fix the reference
 % TODO is there such a section?
@@ -119,7 +121,7 @@ a smart strategy of removal of such artifacts was used, which does not require a
 \end{enumerate}
 
 \paragraph{Smoothing}\label{sec:smoothing}
-The final smoothing of the generated surfaces cannot be performed block-wise since this would introduce smoothing artifacts at the block boundaries. Anyway, the Taubin smoothing~\cite{Taubin1995} can be performed in parallel, since for each vertex in the final surface (except eventually the ones on the image $\mathcal{I}$ boundaries) it essentially consists in computing a new position as a proper average of its neighborhood vertices, i.e.~by applying a discrete Laplacian operator.  Some appropriate sets of workers may so be assigned the task of generating iteratively a new position for the vertices they take cure of. In particular, we have:
+The final smoothing of the generated surfaces cannot be performed block-wise since this would introduce non-smooth artifacts at the block boundaries. Anyway, Taubin smoothing~\cite{Taubin1995} can be performed in parallel, since for each vertex in the final surface (except eventually the ones on the image $\mathcal{I}$ boundaries) it essentially consists in computing a new position as a proper average of its neighboring vertices, i.e.,~by applying a discrete Laplacian operator.  Some appropriate sets of workers may so be assigned the task of generating iteratively a new position for the vertices they take cure of. In particular, we have:
 \begin{enumerate}
 
 \item job enqueuing, by writing sets of integers (global linear indices of vertices) in array buffers of type \texttt{Channel};
@@ -134,9 +136,9 @@ The final smoothing of the generated surfaces cannot be performed block-wise sin
 \subsection{Performance analysis}\label{sec:analysis}
 
 \paragraph{Boundary matrix size}
-The size of the boundary matrix is a critical parameter of the \textsc{lar-surf} method. To determine optimal size of boundary matrix the experiment on artificial data was performed (Fig.  \ref{fig:bm_size_tesla}). The size of experimental data is set to $512\times512\times512$ and it is derived from a typical size of Computed Tomography medical images. Computation is done on the Tesla DGX-1 machine.
+The size of the boundary matrix is a critical parameter of the \textsc{lar-surf} method. To determine the optimal size of the boundary matrix we experimented on artificial data (Fig.  \ref{fig:bm_size_tesla}). The size of the experimental data was set to $512\times512\times512$ (a typical size of Computed Tomography medical images). Computation was done on the Tesla DGX-1 machine.
 
-According to the experiment the fastest computation is with the boundary matrix with size $64\times64\times64$. This is an expected result. The larger boundary matrix is too big to fit in CPU's cache memory.
+According to the experiment the fastest computation is with boundary matrix size $64\times64\times64$. This is an expected result. The larger boundary matrix is too big to fit in CPU's cache memory.
 
 \begin{figure}
 \centering
@@ -165,7 +167,7 @@ The number of slices is each series varies from 74 to 260 and the size of each s
 The dataset contains manually segmented liver, portal vein, and other structures. We performed surface extraction of the liver with Marching Cubes and LAR-SURF. The time required for computation can be seen in Fig. \ref{fig:ircad_comparison}. 
 
 Based on the t-test with $\alpha=0.99$, $p=\input{input/ircad_pvalue}$ and 
-$s=\input{input/ircad_statistics}$ it can be shown that the mean of time consumed by LAR-SURF is significantly lower from time consumed by Marching Cubes.
+$s=\input{input/ircad_statistics}$ it can be shown that the mean time consumed by LAR-SURF is significantly smaller than that consumed by Marching Cubes.
 
 
 % \begin{figure}

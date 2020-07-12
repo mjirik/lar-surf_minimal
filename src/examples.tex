@@ -12,7 +12,7 @@
 (a) Detail of the portal vein (PV) with resolution $1.6\times0.57\times0.57$ $[mm]$.
 (b) model of the human liver, with portal vein and hepatic artery connected to colon and stomach.
 (c) microvasculature of a pig liver, based on corrosion cast of interlobular veins prepared by Eberlova
-\cite{eberlova2017use}. The size of the specimen is 0.936 $[mm]$ along each axis and the resolution of the Micro-CT data is 4.682 $\mu{}m$. Note that brick boundaries look flat.
+\cite{eberlova2017use}. The size of the specimen is 0.936 $[mm]$ along each axis and the resolution of the Micro-CT data is 4.682 $\mu{}m$. Note that brick boundaries are flat.
 }
 \label{fig:example_liver_macro_micro}
 \end{figure}
@@ -85,13 +85,13 @@ Vs = LarSurf.Smoothing.smoothing_FV_taubin(V,FV,0.5,-0.2,40)
 objlines = LarSurf.Lar.lar2obj(Vs, FVtri, "liver.obj")
 \end{lstlisting}
 
-The portal vein surface extraction can be performed with a small change of input path in code.
+The portal vein surface extraction can be performed with a small change of the input path in the code.
 The 3D image resolution is the same. 
 % It can be seen in the same figure. 
 The number of input voxels is 103533. 
 The output surface is created by 90822 vertices and 182124 triangles. 
 
-The right image of Fig. \ref{fig:example_liver_macro_micro} is the surface of the microvasculature of pig liver. 
+The right image of Fig. \ref{fig:example_liver_macro_micro} is the surface of the microvasculature of a pig liver. 
 The volumetric image is based on Micro-CT data of corrosion casts of pig liver.
 \cite{eberlova2017use}.
 The size of the visualized data is $100\times100\times100$ voxels and the size of the voxel is 4.682 $\mu{}m$.
@@ -109,11 +109,11 @@ The number of triangles is
 
 \section{Discussion of method}\label{sec:discussion}
 
-The greatest amount of other methods for extraction of boundary surfaces from 3D data arrays---including~\cite{10.1016/j.cad.2006.09.003} and~\cite{10.1115/1.2960489}---use implicit functions, defined by first averaging upon 3D mesh vertices the lighting or brightness of incident voxels, and then by applying some marching cube algorithm in order to traverse and to triangulate  the iso-valued boundary patches.  
+Most other methods for extraction of boundary surfaces from 3D data arrays---including~\cite{10.1016/j.cad.2006.09.003} and~\cite{10.1115/1.2960489}---use implicit functions, defined by first averaging upon 3D mesh vertices the lighting or brightness of incident voxels, and then by applying some marching cube algorithm in order to traverse and to triangulate  the iso-valued boundary patches.  
 
-Conversely, we use a binary labeling of the voxel sets of interested image segment, and the standard medical 3D image array as solid representation. The set of boundary facets is extracted through spMV (sparse matrix vector multiplication) of the $[\partial_3]$ matrix times the binary vector labeling the voxels of the segment. The boundary matrix is computed once and for all, sent to all workers (cores or nodes), then used in parallel for all image brick extractions. This algebraic method can be immediately extended to multi-material processing, as well as to design multi-material tissue layering for 3D printing.
+We use instead, we use a binary labeling of the voxel sets of the image segment of interest, and the standard medical 3D image array as solid representation. The set of boundary facets is extracted through spMV (sparse matrix vector multiplication) of the $[\partial_3]$ matrix times the binary vector labeling the voxels of the segment. The boundary matrix is computed once and for all, sent to all workers (cores or nodes), then used in parallel for all image brick extractions. This algebraic method can be immediately extended to multi-material processing, as well as to designing multi-material tissue layering for 3D printing.
 
-In particular, we might organize a multi-material (or multi-organ) extraction, simply by multiplication of the boundary matrix $[\partial_3]: C_3\to C_2$  times a binary matrix where the non-zeros elements on each column represents either one of the materials, or one of the organs to be algebraically extracted by the filter. The two surface patches common to two adjacent segments will be exactly coincident, and share the same geometry and topology, with the only exception of each patch contours, where the influence of adjacent patches induces each instance to be separated and round-off.
+In particular, we might organize a multi-material (or multi-organ) extraction, simply by multiplication of the boundary matrix $[\partial_3]: C_3\to C_2$  times a binary matrix where the non-zero elements on each column represent either one of the materials, or one of the organs to be algebraically extracted by the filter. The two surface patches common to two adjacent segments will be exactly coincident, and share the same geometry and topology, with the only exception of the each patch contours, where the influence of adjacent patches induces each instance to be separated and rounded-off.
 %
 %To make our algorithm consistent with results given by~\cite{10.1016/j.cad.2006.09.003} and ~\cite{10.1115/1.2960489} about the boundaries common to multiple patches is easy: (1) extract the 1-skeleton of the set of patches, using the boundary matrix $[\partial_2]: C_2\to C_1$ \emph{before} the rounding of surfaces; (2) make the resulting 1-chains curved and smooth, by 1D Taubin algorithm, (3) block their vertices before the Taubin smoothing of incident patches.
 
